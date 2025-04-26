@@ -11,8 +11,8 @@ st.title("🏡 USDA Property Eligibility Map")
 # --- LOAD SHAPEFILE ---
 st.header("Load USDA Ineligible Areas Shapefile")
 
-# Path to your shapefile
-shapefile_path = '/Users/saramarron/Desktop/Datasets/USDA/SFH_MFH_Ineligible/SFH_MFH_Ineligible.shp'
+# Path to your shapefile (relative to project root)
+shapefile_path = 'USDA_Data/SFH_MFH_Ineligible.shp'
 
 # Check if file exists
 if not os.path.exists(shapefile_path):
@@ -31,8 +31,4 @@ else:
 
         fig, ax = plt.subplots(figsize=(10, 10))
         gdf.plot(ax=ax, color='orange', edgecolor='black')
-        st.pyplot(fig)
-
-    except Exception as e:
-        st.error(f"🚨 Error loading shapefile: {e}")
-
+        ax.set_title("USDA Ineligible Areas Map")
