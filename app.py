@@ -32,3 +32,8 @@ else:
         fig, ax = plt.subplots(figsize=(10, 10))
         gdf.plot(ax=ax, color='orange', edgecolor='black')
         ax.set_title("USDA Ineligible Areas Map")
+        ax.axis('off')  # Hide axis
+        st.pyplot(fig)
+
+    except Exception as e:
+        st.error(f"🚨 Error loading shapefile: {e}")
