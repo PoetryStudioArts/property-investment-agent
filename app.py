@@ -1,42 +1,49 @@
 # app.py
 
 import streamlit as st
-import geopandas as gpd
-import folium
-import os
+import requests
 
 # --- PAGE TITLE ---
-st.title("🏡 USDA Property Eligibility Map")
+st.title("🏡 Property Pal - Real Estate Research Assistant")
 
-# --- LOAD SHAPEFILE ---
-st.header("Load USDA Ineligible Areas Shapefile")
+# --- FUNCTIONS TO QUERY PROPERTY DATA ---
 
-# Path to your shapefile (relative to project root)
-shapefile_path = 'USDA_Data/SFH_MFH_Ineligible.shp'
+def search_property_maryland(address):
+    """Search Maryland property tax data."""
+    endpoint = "https://data.imap.maryland.gov/arcgis/rest/services/GeocodeServices/MD_Composite_Locator/GeocodeServer/findAddressCandidates"
+    params = {
+        "SingleLine": address,
+        "f": "json",
+        "outFields": "*",
+    }
+    response = requests.get(endpoint, params=params)
+    data = response.json()
 
-# Check if file exists
-if not os.path.exists(shapefile_path):
-    st.error(f"❌ Shapefile not found at {shapefile_path}")
-else:
-    try:
-        gdf = gpd.read_file(shapefile_path)
-        st.success("✅ Successfully loaded USDA shapefile!")
+    if data['candidates']:
+        location = data['candidates'][0]['location']
+        return location
+    else:
+        return None
 
-        # Display basic info
-        st.subheader("Shapefile Details")
-        st.write(gdf.head())
+# --- STREAMLIT UI ---
 
-                # --- PLOT MAP ---
-        st.subheader("Map of Ineligible Areas")
+st.header("Search for a Property Address")
 
-        fig, ax = plt.subplots(figsize=(10, 10))
-        gdf.plot(ax=ax, color='orange', edgecolor='black')
-        ax.set_title("USDA Ineligible Areas Map")  # Add a title to the map
-        ax.axis('off')  # Hide x and y axis
-        st.pyplot(fig)
- 
-    except Exception as e: st.error(f":red[Error loading shapefile: {e}]") 
-      
+address = st.text_input("Enter Address (MD, VA, WV)")
+state = st.selectbox("Select State", ["Maryland", "Virginia", "West Virginia"])
 
-    except Exception as e:
-        st.error(f"🚨 Error loading shapefile: {e}")
+if st.button("🔎 Search"):
+    if state == "Maryland":
+        location = search_property_maryland(address)
+        if location:
+            st.success(f"✅ Found Property Coordinates: {location}")
+            # Here you would call another function to pull tax data for MD using the location
+            st.info("ℹ️ Property tax data retrieval coming soon...")
+        else:
+            st.error("❌ Property not found in Maryland database.")
+
+    elif state == "Virginia":
+        st.warning("⚠️ Virginia tax data connection not set up yet.")
+
+    elif state == "West Virginia":
+        st.warning("⚠️ West Virginia tax data connection not set up yet.")
