@@ -16,7 +16,8 @@ def search_property_maryland(address):
         "f": "json",
         "outFields": "*",
     }
-    response = requests.get(endpoint, params=params)
+    response = requests.get(f"http://api.example.com/search?city={city}&state={state}&zipcode={zipcode}")
+
 
     if response.headers['Content-Type'] == 'application/json':
         try:
