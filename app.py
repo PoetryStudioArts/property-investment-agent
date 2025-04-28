@@ -2,7 +2,7 @@
 
 import streamlit as st
 import geopandas as gpd
-import matplotlib.pyplot as plt
+import folium
 import os
 
 # --- PAGE TITLE ---
@@ -26,14 +26,17 @@ else:
         st.subheader("Shapefile Details")
         st.write(gdf.head())
 
-        # --- PLOT MAP ---
+                # --- PLOT MAP ---
         st.subheader("Map of Ineligible Areas")
 
         fig, ax = plt.subplots(figsize=(10, 10))
         gdf.plot(ax=ax, color='orange', edgecolor='black')
-        ax.set_title("USDA Ineligible Areas Map")
-        ax.axis('off')  # Hide axis
+        ax.set_title("USDA Ineligible Areas Map")  # Add a title to the map
+        ax.axis('off')  # Hide x and y axis
         st.pyplot(fig)
+ 
+    except Exception as e: st.error(f":red[Error loading shapefile: {e}]") 
+      
 
     except Exception as e:
         st.error(f"🚨 Error loading shapefile: {e}")
