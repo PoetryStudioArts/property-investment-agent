@@ -25,7 +25,7 @@ if response.headers['Content-Type'] == 'application/json':
         except requests.exceptions.JSONDecodeError:
             print("Error decoding JSON. Response text:", response.text)
             return None  # Return None or handle the error as needed
-    else:
+else:
         print("Received non-JSON response:", response.text)
         return None  # Return None or handle the error as needed
 
