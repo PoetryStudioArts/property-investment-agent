@@ -9,15 +9,17 @@ st.title("🏡 Property Pal - Real Estate Research Assistant")
 # --- FUNCTIONS TO QUERY PROPERTY DATA ---
 
 def search_property_maryland(address):
-    """Search Maryland property tax data."""
-    endpoint = "https://data.imap.maryland.gov/arcgis/rest/services/GeocodeServices/MD_Composite_Locator/GeocodeServer/findAddressCandidates"
-    params = {
-        "SingleLine": address,
-        "f": "json",
-        "outFields": "*",
-    }
+    city = address.get('city')
+    state = address.get('state')
+    zipcode = address.get('zipcode')
+
     response = requests.get(f"http://api.example.com/search?city={city}&state={state}&zipcode={zipcode}")
 
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error: {response.status_code}")
+        return None
 
     if response.headers['Content-Type'] == 'application/json':
         try:
