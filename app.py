@@ -22,14 +22,14 @@ def search_property_maryland(address):
 if response.headers['Content-Type'] == 'application/json':
         try:
             data = response.json()  # Attempt to parse as JSON
-        except requests.exceptions.JSONDecodeError:
+except requests.exceptions.JSONDecodeError:
             print("Error decoding JSON. Response text:", response.text)
-            return None  # Return None or handle the error as needed
+         return None  # Return None or handle the error as needed
 else:
         print("Received non-JSON response:", response.text)
         return None  # Return None or handle the error as needed
-
-    return data
+        
+        return data
 
 # --- STREAMLIT UI ---
 
