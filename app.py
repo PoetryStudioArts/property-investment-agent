@@ -17,19 +17,18 @@ def search_property_maryland(address):
         "outFields": "*",
     }
     response = requests.get(endpoint, params=params)
-    data = response.json()
 
-if response.headers['Content-Type'] == 'application/json':
+    if response.headers['Content-Type'] == 'application/json':
         try:
             data = response.json()  # Attempt to parse as JSON
-except requests.exceptions.JSONDecodeError:
+            return data  # Ensure return is inside try
+        except requests.exceptions.JSONDecodeError:
             print("Error decoding JSON. Response text:", response.text)
-         return None  # Return None or handle the error as needed
-else:
+            return None  # Return None or handle the error as needed
+    else:
         print("Received non-JSON response:", response.text)
         return None  # Return None or handle the error as needed
-        
-        return data
+
 
 # --- STREAMLIT UI ---
 
