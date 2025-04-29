@@ -11,7 +11,6 @@ st.title("🏡 Property Pal - Maryland Property Map")
 # --- LOAD GEOJSON DATA ---
 @st.cache_data
 def load_data():
-    # Replace 'maryland_properties.geojson' with the filename you downloaded
     gdf = gpd.read_file('Maryland_Property_Data_-_Tax_Map_Grids (1).geojson')
     return gdf
 
