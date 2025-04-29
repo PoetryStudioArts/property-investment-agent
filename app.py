@@ -1,45 +1,50 @@
 # app.py
 
 import streamlit as st
-import requests
+import folium
+from streamlit_folium import folium_static
+import geopandas as gpd
 
 # --- PAGE TITLE ---
-st.title("🏡 Property Pal - Real Estate Research Assistant")
+st.title("🏡 Property Pal - Maryland Property Map")
 
-# --- FUNCTIONS TO QUERY PROPERTY DATA ---
+# --- LOAD GEOJSON DATA ---
+@st.cache_data
+def load_data():
+    # Replace 'maryland_properties.geojson' with the filename you downloaded
+    gdf = gpd.read_file('Maryland_Property_Data_-_Tax_Map_Grids (1).geojson')
+    return gdf
 
-def search_property_maryland(address):
-    response = requests.get(f"http://api.example.com/search?address={address}")
-
-    if response.status_code == 200:
-        try:
-            data = response.json()  # Attempt to parse as JSON
-            return data
-        except requests.exceptions.JSONDecodeError:
-            print("Error decoding JSON. Response text:", response.text)
-            return None
-    else:
-        print(f"Error: {response.status_code}")
-        return None
+gdf = load_data()
 
 # --- STREAMLIT UI ---
+st.header("Search Maryland Properties")
 
-st.header("Search for a Property Address")
+address_query = st.text_input("Enter part of the Property Address")
 
-address = st.text_input("Enter Address (e.g., '123 Main St, Baltimore, MD')")
-state = st.selectbox("Select State", ["Maryland", "Virginia", "West Virginia"])
+# --- CREATE BASE MAP ---
+map_center = [39.0458, -76.6413]  # Maryland center coordinates
+m = folium.Map(location=map_center, zoom_start=8)
 
-if st.button("🔎 Search"):
-    if state == "Maryland":
-        location = search_property_maryland(address)
-        if location:
-            st.success(f"✅ Found Property Coordinates: {location}")
-            st.info("ℹ️ Property tax data retrieval coming soon...")
-        else:
-            st.error("❌ Property not found in Maryland database.")
+# --- FILTER BASED ON USER INPUT ---
+if address_query:
+    matches = gdf[gdf['PropertyAddress'].str.contains(address_query, case=False, na=False)]
 
-    elif state == "Virginia":
-        st.warning("⚠️ Virginia tax data connection not set up yet.")
+    if not matches.empty:
+        st.success(f"✅ Found {len(matches)} matching properties.")
+        # Add matching properties to the map
+        for _, row in matches.iterrows():
+            coords = row.geometry.centroid.coords[0]  # Get the (lon, lat)
+            folium.Marker(
+                location=[coords[1], coords[0]],  # folium expects (lat, lon)
+                popup=row['PropertyAddress'],
+                icon=folium.Icon(color="blue", icon="home")
+            ).add_to(m)
+    else:
+        st.error("❌ No matching properties found.")
+else:
+    st.info("ℹ️ Enter a property address to search.")
 
-    elif state == "West Virginia":
-        st.warning("⚠️ West Virginia tax data connection not set up yet.")
+# --- DISPLAY THE MAP ---
+folium_static(m)
+
