@@ -11,11 +11,32 @@ st.title("🏡 Property Pal - Maryland Property Map")
 # --- LOAD GEOJSON DATA ---
 @st.cache_data
 def load_data():
-    gdf = gpd.read_file('Maryland_Property_Data_-_Tax_Map_Grids (1).geojson')
+    filename = 'Maryland_Property_Data_-_Tax_Map_Grids (1).geojson'
+    
+    # Step 1: Check if the file exists
+    if not os.path.exists(filename):
+        st.error(f"Error: File '{filename}' not found. Please make sure the GeoJSON file is correctly uploaded.")
+        st.stop()
+    
+    # Step 2: Try opening it as JSON
+    try:
+        with open(filename) as f:
+            data = json.load(f)
+        if "features" not in data:
+            st.error(f"Error: The file '{filename}' does not appear to contain valid GeoJSON 'features'.")
+            st.stop()
+    except json.JSONDecodeError as e:
+        st.error(f"Error: File '{filename}' is not valid JSON. {e}")
+        st.stop()
+    
+    # Step 3: Try loading it with geopandas
+    try:
+        gdf = gpd.read_file(filename)
+    except Exception as e:
+        st.error(f"Error: Failed to load GeoJSON file with geopandas. {e}")
+        st.stop()
+    
     return gdf
-
-gdf = load_data()
-
 # --- STREAMLIT UI ---
 st.header("Search Maryland Properties")
 
